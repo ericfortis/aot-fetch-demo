@@ -1,19 +1,20 @@
 # Ahead of Time Fetch Demo
 
 Single page applications (SPAs) have a reputation for being slow.
-Particularly on the first load, because they have to download
-static assets before they can start fetching data from the backend.
+On the first load, they have to download static assets before they 
+can start fetching data from the backend.
 
-Let’s explore how to initiate backend requests before the static assets are ready.
+Let’s explore how to initiate backend requests before the static 
+JavaScript assets execute.
 
 
 ## TL;DR
 
-Hold a reference to the fetch promise(s) you need in `index.html`
+Hold a reference to the fetch promise(s) you need. For example, in `index.html`:
 ```html
 <html>
 <head>
-  <script type="module" src="index-XcdbPu.js"></script>
+  <script type="module" src="script-958c.js"></script>
 </head>
 <body>
 <script>
@@ -85,7 +86,7 @@ that injects `index-aot-fetch.js` into `index.html`.
 
 
 ## Setup (Webpack)
-This repo doesn’t include a Webpack setup, but you could do it this:
+This repo doesn’t include a Webpack setup, but you could do it like this:
 ```js
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 
