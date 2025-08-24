@@ -4,12 +4,12 @@ Single page applications (SPAs) have a reputation for being slow.
 Particularly on the first load, because they have to download
 static assets before they can start fetching data from the backend.
 
-This demo explores a way to initiate backend requests before the static assets are ready.
+Let’s explore how to initiate backend requests before the static assets are ready.
 
 
 ## TL;DR
 
-Hold a reference to the fetch promises you need in `index.html`
+Hold a reference to the fetch promise(s) you need in `index.html`
 ```html
 <html>
 <head>
