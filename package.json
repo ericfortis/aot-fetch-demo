@@ -1,0 +1,21 @@
+{
+  "name": "aot-fetch-demo",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "backend": "backend/server.js",
+    "dev": "vite",
+    "build": "vite build",
+    "outdated": "npm outdated --parseable | awk -F: '{ printf \"npm i %-30s ;# %s\\n\", $4, $2 }'"
+  },
+  "dependencies": {
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "5.0.1",
+    "mockaton": "8.16.5",
+    "vite": "7.1.3"
+  }
+}
