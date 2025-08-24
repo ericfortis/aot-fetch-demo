@@ -1,11 +1,10 @@
 # Ahead of Time Fetch Demo
 
-Single page applications (SPAs) have a bad reputation of being slow.
-Particularly on the first load, because they have to download static assets,
-and compile them before they can start fetching data from the backend.
+Single page applications (SPAs) have a reputation for being slow.
+Particularly on the first load, because they have to download
+static assets before they can start fetching data from the backend.
 
-In this demo, we explore a way of initiating the backend requests before
-static assets are ready.
+This demo explores a way to initiate backend requests before the static assets are ready.
 
 
 ## TL;DR
@@ -52,7 +51,7 @@ cd aot-fetch-demo
 npm install 
 
 npm run backend
-npm run dev # In another Terminal 
+npm run dev # in another terminal 
 ```
 
 The following screenshots are from a built SPA
@@ -61,12 +60,12 @@ because the graphs are cleaner. If you prefer this way you could:
 npm run build
 npm run backend
 ```
-And open http://localhost:2345
+Then open http://localhost:2345
 
 
 ### Without AOT
 In this screenshot we haven’t injected the [inline script](./index-aot-fetch.js), so
-you can see `GET /api/colors` started after the SPA is ready.
+you can see that `GET /api/colors` starts only after the SPA is ready.
 
 ![](./docs/no-aot.png)
 
@@ -82,11 +81,11 @@ you can see `GET /api/colors` started after the SPA is ready.
 
 ## Setup (Vite)
 Our [vite.config.js](./vite.config.js) has an `htmlPlugin` function 
-that injects `index-aot-fetch.js` into the index.html.
+that injects `index-aot-fetch.js` into `index.html`.
 
 
 ## Setup (Webpack)
-This repo doesn’t have this setup, but it’s doable like this:
+This repo doesn’t include a Webpack setup, but you could do it this:
 ```js
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 
