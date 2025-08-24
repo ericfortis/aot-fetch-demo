@@ -1,13 +1,20 @@
 import { join } from 'node:path'
-import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+
+
+function readAotFetch() {
+	return readFileSync(join(import.meta.dirname, './index-aot-fetch.js'), 'utf8').trim()
+}
 
 
 export default defineConfig({
 	plugins: [
 		react(),
-		htmlPlugin()
+		injectInlineAotScriptPlugin(),
+		cspNginxPlugin()
 	],
 	server: {
 		port: 3030,
@@ -23,9 +30,9 @@ export default defineConfig({
 })
 
 
-function htmlPlugin() {
+function injectInlineAotScriptPlugin() {
 	return {
-		name: 'html-plugin',
+		name: 'inject-inline-aot-script-plugin',
 		transformIndexHtml(html) {
 			return html.replace('</body>',
 				`<script>${readAotFetch()}</script></body>`
@@ -34,8 +41,35 @@ function htmlPlugin() {
 	}
 }
 
-function readAotFetch() {
-	return readFileSync(join(import.meta.dirname, './index-aot-fetch.js'), 'utf8').trim()
+/**
+ * Writes a file (csp.nginx), which is meant to be included in your 
+ * nginx.conf. For example,
+ * ```nginx
+ *    server {
+ *      …
+ *      location / {
+ *       …
+ *       include   /usr/local/spa-dist/csp.nginx;
+ *       rewrite ^ /index.html break;
+ *      }
+ *    }
+ * ```
+ */
+function cspNginxPlugin() {
+	return {
+		name: 'csp-nginx-plugin',
+		closeBundle() {
+			const csp = [
+				`default-src 'self'`,
+				`script-src 'self' 'sha256-${sha256(readAotFetch())}'`
+			].join(';')
+
+			const nginxInclude = `add_header Content-Security-Policy "${csp}";`
+			writeFileSync(join('dist', 'csp.nginx'), nginxInclude)
+
+			function sha256(data) {
+				return createHash('sha256').update(data).digest('base64')
+			}
+		}
+	}
 }
-
-

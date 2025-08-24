@@ -1,11 +1,11 @@
-# Ahead of Time Fetch Demo
+# Ahead of Time Fetch Demo for SPAs
 
-Single page applications (SPAs) have a reputation for being slow.
+Single page applications have a reputation for being slow.
 On the first load, they have to download static assets before they 
 can start fetching data from the backend.
 
 Let’s explore how to initiate backend requests before the static 
-JavaScript assets execute.
+JavaScript assets execute so we can speed up rendering.
 
 
 ## TL;DR

@@ -2,6 +2,14 @@ import { createRoot } from 'react-dom/client'
 import { useEffect, useState } from 'react'
 
 
+/**
+ * In this demo, the backend doesn’t check the session id or token,
+ * but in your code you’ll have to add the corresponding credentials.
+ * For example:
+ *   `fetch(url, { credentials: 'include' })` or
+ *   `fetch(url, { headers: { Authorization: … }})`
+ */
+
 const getColors = () => aotFetch('/api/colors')
 
 function aotFetch(url) {
