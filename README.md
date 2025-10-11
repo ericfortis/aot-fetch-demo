@@ -15,13 +15,12 @@ Hold a reference to the fetch promise(s) you need. For example, in `index.html`:
 <html>
 <head>
   <script type="module" src="script-958c.js"></script>
+  <script>
+    window._aotFetch = { '/api/colors': fetch('/api/colors') }
+  </script>
+  <link rel="stylesheet" href="goes-after-aot-fetch.css" />
 </head>
 <body>
-<script>
-  window._aotFetch = {
-    '/api/colors': fetch('/api/colors')
-  }
-</script>
 </body>
 </html>
 ```
@@ -42,6 +41,9 @@ if (response.ok)
 
 `<script type="module">` or `<script defer>` don’t block, so the inline
 `<script>` we added executes right away.
+
+On the other hand, `<link rel="stylesheet" …>` do block, so they need
+to be placed after the aot inline script.
 
 
 ## Demo
@@ -101,9 +103,12 @@ import { readFileSync } from 'node:fs'
 
 export const htmlTemplate = () => `<!DOCTYPE html>
 <html>
-<head> … </head>
-<body>
+<head>
   <script>${readAotFetch()}</script>
+  <link rel="stylesheet" … />
+</head>
+<body>
+…
 </body>
 </html>`
 
@@ -111,6 +116,18 @@ function readAotFetch() {
   return readFileSync('./index-aof-fetch.js', 'utf8').trim()
 }
 ```
+
+## Setup (Node + CSP Nonce)
+The two setups above use a `Content-Security-Policy` with an SHA hash for 
+signing the inline script. Another way is using a `nonce` &mdash; the Mockaton
+repository has a working example with it:
+
+https://github.com/ericfortis/mockaton/blob/main/src/DashboardHtml.js
+
+The nonce is generated when rendering the HTML:
+https://github.com/ericfortis/mockaton/blob/main/src/Api.js#L55
+
+
 
 
 ## License
