@@ -1,10 +1,10 @@
 # Ahead of Time Fetch Demo for SPAs
 
-Single page applications have a reputation for being slow.
+Single Page Applications (SPA) have a reputation for being slow.
 On the first load, they have to download static assets before they 
 can start fetching data from the backend.
 
-Let’s explore how to initiate backend requests before the static 
+Let’s explore how to initiate backend API requests before the static 
 JavaScript assets execute so we can speed up rendering.
 
 ## Option 1: Server-Side Link header with preload
@@ -27,7 +27,7 @@ empty, which is required for preloading fetch requests, but it doesn’t have
 When serving the html document, you could stream it in two parts.
 The document as is, and a second chunk with e.g., the JSON payload 
 in a script tag. Then, on the client, [option2/spa.js](option2/spa.js), we
-poll for the existence of that script tag.
+subscribe to an event that is triggered when the data is loaded.
 
 See [option2/](./option2) directory:
 
@@ -39,9 +39,13 @@ cd option2
 ![](docs/streamed-ssi.png)
 
 
-
 ## Option 3: Client-Side cached fetch
-This option could be handy if you need a client-side only solution.
+This option could be handy if you need a client-side only solution. For instance,
+[my project](https://uxtly.com) is statically served from Nginx, so Option 2
+is more work in my case. Similarly, Option 1 is not straightforward because I
+conditionally prefetch an API based on a value on the user’s `localStorage`.
+
+
 
 ### TL;DR
 

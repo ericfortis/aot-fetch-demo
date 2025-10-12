@@ -1,33 +1,21 @@
 window.addEventListener('DOMContentLoaded', async () => {
-	let data = ''
-	try {
-		data = await waitForJsonById('initial-data')
+	if (document.getElementById('initial-data')) // this file (spa.js) loaded after injecting chunk2
+		onInitialDataReady()
+	else {
+		addEventListener('initial-data-ready', onInitialDataReady, { once: true })
+		setTimeout(() => {
+			if (!window['initial-data-ready']) {
+				removeEventListener('initial-data-ready', onInitialDataReady)
+				console.error('Timed out waiting for initial data')
+			}
+		}, 10_000)
 	}
-	catch (err) {
-		data = err
-	}
-	finally {
+	
+	function onInitialDataReady() {
+		const data = document.getElementById('initial-data').textContent.trim()
+
 		const pre = document.createElement('pre')
-		pre.innerText = data.trim() + '\n\nStreamed Chunk 2 END'
+		pre.innerText = data + '\nStreamed Chunk 2 END'
 		document.body.appendChild(pre)
-	}
-
-
-	async function waitForJsonById(id, timeout = 10_000) {
-		const start = performance.now()
-		while (true) {
-			const el = document.getElementById(id)
-			if (el?.textContent)
-				return el.textContent
-
-			if (performance.now() - start > timeout)
-				throw new Error('Timed out waiting for JSON script')
-
-			await sleep(30)
-		}
-	}
-
-	async function sleep(ms) {
-		await new Promise(r => setTimeout(r, ms))
 	}
 })

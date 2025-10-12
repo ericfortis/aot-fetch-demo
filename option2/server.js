@@ -7,12 +7,16 @@ import { Mockaton } from 'mockaton'
 import mockatonConfig from '../mockaton.config.js'
 
 
-console.log('Starting Mockaton…')
-await Mockaton(mockatonConfig)
+const colorsMicroservice = await Mockaton({
+	...mockatonConfig,
+	onReady: () => {}
+})
+const microservice = `http://localhost:${colorsMicroservice.address().port}`
+
 
 createServer(onRequest)
 	.listen(8080, () => {
-		console.log('\nDEMO: http://localhost:8080')
+		console.log('\nDEMO APP: http://localhost:8080')
 	})
 
 
@@ -44,21 +48,29 @@ async function onIndex(response) {
   <script src="spa.js"></script>
 `)
 
-	try {
-		const colorsResponse = await fetch('http://localhost:2345/api/colors') // e.g. calling a microservice
-		if (colorsResponse.ok)
-			response.end(`<script type="application/json" id="initial-data">
-				${JSON.stringify({
-				status: colorsResponse.status,
-				data: await colorsResponse.json()
-			})}
-			</script>`)
-		else
-			throw 'error'
+	// Chunk 2
+	const payload = {
+		status: -1,
+		data: null,
+		error: null
 	}
-	catch {
-		response.end(`<script type="application/json" id="initial-data">
-		  ${JSON.stringify({ status: 'ERROR' })}
-		</script>`)
+	try {
+		const colorsResponse = await fetch(`${microservice}/api/colors`) // e.g. calling a microservice
+		payload.status = colorsResponse.status
+		if (colorsResponse.status === 200)
+			payload.data = await colorsResponse.json()
+	}
+	catch (error) {
+		payload.error = error?.message
+	}
+	finally {
+		response.end(`
+			<script type="application/json" id="initial-data">
+				${JSON.stringify(payload)}
+			</script>
+			<script>
+				dispatchEvent(new Event('initial-data-ready'))
+			</script>`
+		)
 	}
 }
