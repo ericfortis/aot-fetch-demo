@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { useEffect, useState } from 'react'
+import CSS from './App.module.css'
 
 
 /**
@@ -50,7 +51,12 @@ function App() {
 	if (error) return <div>{error}</div>
 	if (!colors.length) return <div>No colors found</div>
 
-	return <pre>{JSON.stringify(colors, null, 2)}</pre>
+	return (
+		<ul className={CSS.Colors}>
+			{colors.map(c =>
+				<li key={c.name} style={{ background: c.color }}>{c.name}</li>)}
+		</ul>
+	)
 }
 
 

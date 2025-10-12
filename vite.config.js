@@ -33,16 +33,20 @@ export default defineConfig({
 function injectInlineAotScriptPlugin() {
 	return {
 		name: 'inject-inline-aot-script-plugin',
-		transformIndexHtml(html) {
-			return html.replace('</body>',
-				`<script>${readAotFetch()}</script></body>`
-			)
-		}
+		transformIndexHtml: html => ({
+			html,
+			tags: [
+				{
+					tag: 'script',
+					children: readAotFetch()
+				}
+			]
+		})
 	}
 }
 
 /**
- * Writes a file (csp.nginx), which is meant to be included in your 
+ * Writes a file (csp.nginx), which is meant to be included in your
  * nginx.conf. For example,
  * ```nginx
  *    server {

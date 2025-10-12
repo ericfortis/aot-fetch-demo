@@ -1,14 +1,15 @@
 # Ahead of Time Fetch Demo for SPAs
 
-Single Page Applications (SPA) have a reputation for being slow.
-On the first load, they have to download static assets before they 
-can start fetching data from the backend.
+Single Page Applications (SPAs) have a reputation for being slow. On the
+first load, since its static assets are not cached yet, the browser has to download
+them before they can start fetching data from the backend.
 
-Let’s explore how to initiate backend API requests before the static 
-JavaScript assets execute so we can speed up rendering.
+This repo shows a few ways to initiate backend API requests before the static 
+JavaScript executes, so we can speed up rendering.
+
 
 ## Option 1: Server-Side Link header with preload
-On the server-side, you could add a `Link` header when sending the html document:
+On the server side, you could add a `Link` header when sending the HTML document:
 ```
 Link: </api/colors>; rel=preload; as=fetch; crossorigin=use-credentials
 ```
@@ -19,12 +20,12 @@ https://github.com/ericfortis/mockaton/blob/main/src/DashboardHtml.js#L36
 That file generates the Link header payload for the initial data from the
 API, but also for preloading static assets. In that example, `crossorigin` is
 empty, which is required for preloading fetch requests, but it doesn’t have
-`use-credentials` because is just a localhost app, which has no session cookie.
+`use-credentials` because it’s just a localhost app, which has no session cookie.
 
 
 
 ## Option 2: Server-Side Include (SSI) critical data
-When serving the html document, you could stream it in two parts.
+When serving the HTML document, you could stream it in two parts.
 The document as is, and a second chunk with e.g., the JSON payload 
 in a script tag. Then, on the client, [option2/spa.js](option2/spa.js), we
 subscribe to an event that is triggered when the data is loaded.
@@ -43,7 +44,7 @@ cd option2
 This option could be handy if you need a client-side only solution. For instance,
 [my project](https://uxtly.com) is statically served from Nginx, so Option 2
 is more work in my case. Similarly, Option 1 is not straightforward because I
-conditionally prefetch an API based on a value on the user’s `localStorage`.
+conditionally prefetch an API based on a value in the user’s `localStorage`.
 
 
 
@@ -83,7 +84,7 @@ if (response.ok)
 `<script type="module">` or `<script defer>` don’t block, so the inline
 `<script>` we added executes right away.
 
-On the other hand, `<link rel="stylesheet" …>` do block, so they need
+On the other hand, `<link rel="stylesheet" …>` do block, so it needs
 to be placed after the aot inline script.
 
 
@@ -100,16 +101,16 @@ npm run dev # in another terminal
 ```
 
 The following screenshots are from a built SPA
-because the graphs are cleaner. If you prefer this way you could:
+because the graphs are cleaner. If you prefer this approach, you can:
 ```sh
 npm run build
 npm run backend
 ```
-Then open http://localhost:2345
+Then, open http://localhost:2345
 
 
 ### Without AOT
-In this screenshot we haven’t injected the [inline script](./index-aot-fetch.js), so
+In this screenshot, we haven’t injected the [inline script](./index-aot-fetch.js), so
 you can see that `GET /api/colors` starts only after the SPA is ready.
 
 ![](./docs/no-aot.png)
@@ -155,7 +156,7 @@ export const htmlTemplate = () => `<!DOCTYPE html>
 </html>`
 
 function readAotFetch() {
-  return readFileSync('./index-aof-fetch.js', 'utf8').trim()
+  return readFileSync('./index-aot-fetch.js', 'utf8').trim()
 }
 ```
 
