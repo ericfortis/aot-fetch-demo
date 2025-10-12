@@ -46,17 +46,20 @@ function injectInlineAotScriptPlugin() {
 }
 
 /**
- * Writes a file (csp.nginx), which is meant to be included in your
- * nginx.conf. For example,
+ * If you use a Content-Security-Policy, here’s an example for signing
+ * the inline script.
+ * 
+ * This Vite plugin writes a file (csp.nginx), which is meant to be 
+ * included in your nginx.conf. For example,
  * ```nginx
- *    server {
- *      …
- *      location / {
- *       …
- *       include   /usr/local/spa-dist/csp.nginx;
- *       rewrite ^ /index.html break;
- *      }
- *    }
+ * server {
+ *   …
+ *   location / {
+ *     …
+ *     include   /usr/local/spa-dist/csp.nginx;
+ *     rewrite ^ /index.html break;
+ *   }
+ * }
  * ```
  */
 function cspNginxPlugin() {

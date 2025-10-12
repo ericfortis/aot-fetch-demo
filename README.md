@@ -4,60 +4,46 @@ Single Page Applications (SPAs) have a reputation for being slow. On the
 first load, since its static assets are not cached yet, the browser has to download
 them before they can start fetching data from the backend.
 
-This repo shows a few ways to initiate backend API requests before the static 
-JavaScript executes, so we can speed up rendering.
+This repo shows a few ways to initiate backend API requests before the static
+JavaScript executes, so we can speed up rendering. The three Option 1 variants use
+[rel=preload](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel/preload),
+while Option 2 is similar to SSR but instead of rendering HTML, or serializing the UI, it streams
+a second chunk with the JSON from API response.
 
 
-## Option 1: Server-Side Link header with preload
-On the server side, you could add a `Link` header when sending the HTML document:
+## Option 1-A: Link Header
+Add a `Link` header when sending the HTML document, e.g.:
 ```
 Link: </api/colors>; rel=preload; as=fetch; crossorigin=use-credentials
 ```
 
-There is a working example in the Mockaton repo, see:
-https://github.com/ericfortis/mockaton/blob/main/src/DashboardHtml.js#L36
-
-That file generates the Link header payload for the initial data from the
-API, but also for preloading static assets. In that example, `crossorigin` is
-empty, which is required for preloading fetch requests, but it doesn’t have
-`use-credentials` because it’s just a localhost app, which has no session cookie.
-
-
-
-## Option 2: Server-Side Include (SSI) critical data
-When serving the HTML document, you could stream it in two parts.
-The document as is, and a second chunk with e.g., the JSON payload 
-in a script tag. Then, on the client, [option2/spa.js](option2/spa.js), we
-subscribe to an event that is triggered when the data is loaded.
-
-See [option2/](./option2) directory:
-
-```sh
-cd option2
-./server.js
+## Option 1-B: &lt;link> in HTML
+Add a link tag in the HTML:
+```html
+<head>
+  <link rel="preload" href="/api/colors" as="fetch" crossorigin="use-credentials">
+  …
+</head>
 ```
 
-![](docs/streamed-ssi.png)
+## Option 1-C: Dynamic &lt;link> in HTML
+For instance, in [my project](https://uxtly.com) I conditionally
+prefetch APIs based on a value in the user’s `localStorage`.
 
 
-## Option 3: Client-Side cached fetch
-This option could be handy if you need a client-side only solution. For instance,
-[my project](https://uxtly.com) is statically served from Nginx, so Option 2
-is more work in my case. Similarly, Option 1 is not straightforward because I
-conditionally prefetch an API based on a value in the user’s `localStorage`.
-
-
-
-### TL;DR
-
-Hold a reference to the fetch promise(s) you need. For example, in `index.html`:
 ```html
 <html>
 <head>
-  <script type="module" src="script-958c.js"></script>
   <script>
-    window._aotFetch = { 
-      '/api/colors': fetch('/api/colors', /* credentials */) 
+    preload('/api/colors')
+    
+    function preload(url) {
+      const link = document.createElement('link')
+      link.as = 'fetch'
+      link.rel = 'preload'
+      link.href = url
+      link.crossOrigin = 'use-credentials'
+      document.head.appendChild(link)
     }
   </script>
   <link rel="stylesheet" href="goes-after-aot-fetch.css" />
@@ -67,25 +53,16 @@ Hold a reference to the fetch promise(s) you need. For example, in `index.html`:
 </html>
 ```
 
-Then, await that promise in your SPA.
-
-```js
-const response = await window._aotFetch['/api/colors']
-if (response.ok) 
-  setColors(await response.json())
-```
-
 
 [src/App.jsx](./src/App.jsx) has a nicer example with a helper function.
 
 
 ## Background
 
-`<script type="module">` or `<script defer>` don’t block, so the inline
-`<script>` we added executes right away.
+`<script type="module">` or `<script defer>` don’t block the inline `<script>`.
 
-On the other hand, `<link rel="stylesheet" …>` do block, so it needs
-to be placed after the aot inline script.
+On the other hand, `<link rel="stylesheet" …>` do block, so they need
+to be placed after the AOT inline script.
 
 
 
@@ -126,7 +103,7 @@ you can see that `GET /api/colors` starts only after the SPA is ready.
 <br/>
 
 ## Setup (Vite)
-Our [vite.config.js](./vite.config.js) has an `htmlPlugin` function 
+Our [vite.config.js](./vite.config.js) has an `htmlPlugin` function
 that injects `index-aot-fetch.js` into `index.html`.
 
 
@@ -160,6 +137,26 @@ function readAotFetch() {
 }
 ```
 
+<hr/>   
+<br/>
+
+## Option 2: Server-Side Include (SSI)
+When serving the HTML document, you could stream it in two parts.
+The document as is, and a second chunk with e.g., the JSON payload 
+in a script tag. Then, on the client, [option2/spa.js](option2/spa.js), we
+subscribe to an event that is triggered when the data is loaded.
+
+See [option2/](./option2) directory:
+
+```sh
+cd option2
+./server.js
+```
+
+![](docs/streamed-ssi.png)
+
+
+<br/>
 
 
 ## License

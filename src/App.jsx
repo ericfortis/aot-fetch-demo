@@ -5,23 +5,13 @@ import CSS from './App.module.css'
 
 /**
  * In this demo, the backend doesn’t check the session id or token,
- * but in your code you’ll have to add the corresponding credentials.
+ * so the inclusion of credentials, is not needed here, but likely you’ll need it.
  * For example:
  *   `fetch(url, { credentials: 'include' })` or
  *   `fetch(url, { headers: { Authorization: … }})`
  */
 
-const getColors = () => aotFetch('/api/colors')
-
-function aotFetch(url) {
-	if (window._aotFetch?.[url]) {
-		const promise = window._aotFetch[url]
-		delete window._aotFetch[url]
-		return promise
-	}
-	return fetch(url)
-}
-
+const getColors = () => fetch('/api/colors', { credentials: 'include' })
 
 function App() {
 	const [loaded, setLoaded] = useState(false)
