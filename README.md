@@ -1,8 +1,8 @@
 # Ahead of Time Fetch Demo for SPAs
 
-Single Page Applications (SPAs) have a reputation for being slow. On the
-first load, since its static assets are not cached yet, the browser has to download
-them before they can start fetching data from the backend.
+Single Page Applications (SPAs) have a reputation for being slow. On the first load
+(or when there’s a new version), since the static assets are not cached, the
+browser has to download them before they can start fetching data from the backend.
 
 This repo shows a few ways to initiate backend API requests before the static
 JavaScript executes, so we can speed up rendering. The three Option 1 variants use
