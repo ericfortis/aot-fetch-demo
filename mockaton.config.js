@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { lstatSync } from 'node:fs'
-import { Mockaton, defineConfig } from 'mockaton'
+import { defineConfig } from 'mockaton'
 
 
 export default defineConfig({
