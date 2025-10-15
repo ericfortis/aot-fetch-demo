@@ -4,31 +4,40 @@ This repo has a few ways to speed up the cold start of SPAs.
 
 ## Background
 
-Since Single Page Applications (SPAs) initiate backend requests from
-a static JavaScript file, that file needs to be downloaded before
-making API requests. But that chain doesn’t have to be sequential.
+Most Single Page Applications (SPAs) initiate all backend requests from a
+static JavaScript file. In those cases, that static file needs to be downloaded
+before making API requests. 
 
-There are two main options for concurrently requesting static assets and
-dynamic APIs on SPAs &mdash; without server-side rendering. Option 1 is
-browser-based, while Option 2 is server side. Option 1 is about indicating which
-APIs we could preload. Option 2 streams a chunk with the critical JSON data.
+But that chain doesn’t have to be sequential. We can concurrently
+request static assets and dynamic APIs without server side rendering
+(SSR). In this repository we discuss two techniques: Option 1 is
+client-initiated, while Option 2 is similar to a server side include (SSI).
 
-By _cold start_ I mean either the initial load, or a version update. On
-subsequent loads this technique it’s not really needed, but it doesn’t hurt either,
-because static assets can be fully cached. For that, the win is versioning
-static filenames (e.g., `script-<hash>.js`) and serving them with a cache
-header with an `immutable` flag for avoiding revalidation:
+- Option 1 is about indicating which APIs we want to preload. 
+- Option 2 streams a chunk with only the API data, so there’s no rendering overhead.
+
+<details>
+<summary>More details</summary>
+
+By _cold start_ I mean either the initial load, or a version update.
+
+Since static assets can be fully cached, on subsequent (warm) loads this technique
+it’s not really needed, but it doesn’t hurt. For long-term caching, the quick
+win is versioning static filenames (e.g., `script-<hash>.js`) and serving
+them with a cache header with an `immutable` flag, which avoids revalidation:
+
 ```
 Cache-Control: public,max-age=31536000,immutable
 ```
+</details>
 
 ## Option 1
-Here we have three alternatives for preloading APIs with 
+Here we have three alternatives for preloading APIs with
 [Links](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link).
 Their performance difference is negligible &mdash; they all start right after
 downloading the HTML document. On the other hand, Option 2 has a potential, but
 slight, advantage because it can initiate the API call before the HTML is sent. At
-any rate, it’s pretty negligible as well because these HTML files are like 1.4 kB.
+any rate, it’s pretty negligible as well because these HTML files are like 1.5 kB.
 
 
 ### Option 1-A: Link Header
@@ -38,9 +47,10 @@ if you use Nginx to serve your `index.html`, you can:
 add_header Link '</api/colors>; rel=preload; as=fetch; crossorigin=use-credentials';
 ```
 
-### Option 1-B: Add a  &lt;link> to your `index.html`
-Hardcode a link tag: 
+### Option 1-B: Add a &lt;link> to your `index.html`
+Add a link tag:
 ```html
+
 <head>
   <link rel="preload" href="/api/colors" as="fetch" crossorigin="use-credentials">
   …
@@ -48,7 +58,7 @@ Hardcode a link tag:
 ```
 
 ### Option 1-C: Dynamic Inject a &lt;link>
-This is similar to 1-B, but it’s injected with inline JavaScript. I use
+This is similar to 1-B, but it’s injected with an inline script. I use
 this option in [my project](https://uxtly.com) because I conditionally
 prefetch APIs based on a value in the user’s `localStorage`.
 
@@ -57,7 +67,7 @@ prefetch APIs based on a value in the user’s `localStorage`.
 <head>
   <script>
     preload('/api/colors')
-    
+
     function preload(url) {
       const link = document.createElement('link')
       link.as = 'fetch'
@@ -149,13 +159,18 @@ function readAotFetch() {
 <hr/>   
 <br/>
 
-## Option 2: Server-Side Include (SSI)
-When serving the HTML document, you could stream it in two parts.
-The document as is, and a second chunk with e.g., the JSON payload 
-in a script tag. Then, on the client, [option2/spa.js](option2/spa.js), we
+
+## Option 2: Data-only Server Side Includes (SSI)
+
+This technique is similar to SSR, but it avoids the rendering overhead.
+It just streams the API data, commonly as JSON but not limited to it.
+
+In this demo we stream the `index.html` document it in two parts.
+The document as is, and a second chunk with the API response
+in a script tag. Then, on the client ([option2/spa.js](option2/spa.js)), we
 subscribe to an event that is triggered when the data is loaded.
 
-See [option2/](./option2) directory:
+See the [option2/](./option2) directory, you can run the demo by typing:
 
 ```sh
 cd option2
