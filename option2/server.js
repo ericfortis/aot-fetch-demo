@@ -35,7 +35,10 @@ function onRequest(req, response) {
 
 
 async function onIndex(response) {
-	response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
+	response.writeHead(200, { 
+		'Content-Type': 'text/html; charset=utf-8',
+		// 'Content-Security-Policy': `default-src 'self'; script-src ''` // TODO nonce
+	})
 	response.write(`<!DOCTYPE html>
 <html>
 <head>
