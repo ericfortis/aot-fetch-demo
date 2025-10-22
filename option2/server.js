@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 
-import { readFileSync } from 'node:fs'
-import { createServer } from 'node:http'
 import { join } from 'node:path'
+import { createServer } from 'node:http'
+import { readFileSync } from 'node:fs'
+import { randomBytes } from 'node:crypto'
+
 import { Mockaton } from 'mockaton'
 import mockatonConfig from '../mockaton.config.js'
 
 
 const colorsMicroservice = await Mockaton({
 	...mockatonConfig,
-	onReady: () => {}
+	onReady: () => {} // noop, so it doesn’t open Mockaton’s dashboard
 })
 const microservice = `http://localhost:${colorsMicroservice.address().port}`
 
@@ -35,9 +37,11 @@ function onRequest(req, response) {
 
 
 async function onIndex(response) {
+	const nonce = randomBytes(16).toString('base64Url')
+	
 	response.writeHead(200, { 
 		'Content-Type': 'text/html; charset=utf-8',
-		// 'Content-Security-Policy': `default-src 'self'; script-src ''` // TODO nonce
+		'Content-Security-Policy': `default-src 'self'; script-src 'nonce-${nonce}' 'self'` 
 	})
 	response.write(`<!DOCTYPE html>
 <html>
@@ -58,7 +62,7 @@ async function onIndex(response) {
 		error: null
 	}
 	try {
-		const colorsResponse = await fetch(`${microservice}/api/colors`) // e.g. calling a microservice
+		const colorsResponse = await fetch(`${microservice}/api/colors`)
 		payload.status = colorsResponse.status
 		if (colorsResponse.status === 200)
 			payload.data = await colorsResponse.json()
@@ -68,11 +72,12 @@ async function onIndex(response) {
 	}
 	finally {
 		response.end(`
-			<script type="application/json" id="initial-data">
+			<script type="application/json" id="initial-data" nonce="${nonce}">
 				${JSON.stringify(payload)}
 			</script>
-			<script>
+			<script nonce="${nonce}">
 				dispatchEvent(new Event('initial-data-ready'))
+        console.log('chunk 2 received')
 			</script>`
 		)
 	}

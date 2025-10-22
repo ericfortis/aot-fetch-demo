@@ -7,15 +7,15 @@
     "backend": "mockaton",
     "dev": "vite",
     "build": "vite build",
-    "outdated": "npm outdated --parseable | awk -F: '{ printf \"npm i %-30s ;# %s\\n\", $4, $2 }'"
+    "outdated": "npm outdated --parseable | awk -F: '{ printf \"npm i %s ;# %s\\n\", $4, $2 }'"
   },
   "dependencies": {
-    "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "5.0.3",
-    "mockaton": "10.5.2",
-    "vite": "7.1.7"
+    "@vitejs/plugin-react": "5.0.4",
+    "mockaton": "10.6.6",
+    "vite": "7.1.11"
   }
 }

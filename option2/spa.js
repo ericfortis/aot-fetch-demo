@@ -1,6 +1,6 @@
-window.addEventListener('DOMContentLoaded', async () => {
+;(function () {
 	const aotElem = () => document.getElementById('initial-data')
-	
+
 	if (aotElem()) // this file (spa.js) loaded after injecting chunk2
 		onInitialDataReady()
 	else {
@@ -12,12 +12,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 			}
 		}, 10_000)
 	}
-	
+
 	function onInitialDataReady() {
 		const data = aotElem().textContent.trim()
-		
+
 		const pre = document.createElement('pre')
-		pre.innerText = data + '\nStreamed Chunk 2 END'
+		pre.innerText = 'Rendering colors payload from spa.js:\n' + data
 		document.body.appendChild(pre)
 	}
-})
+}())
