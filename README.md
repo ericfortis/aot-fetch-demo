@@ -230,6 +230,11 @@ function aotFetch(url) {
 }
 ```
 
+### Related Articles
+- https://oliverjam.es/articles/preload-data
+- https://martinfowler.com/articles/data-fetch-spa.html#prefetching 
+- https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel/preload#cors-enabled_fetches
+
 
 <hr/>   
 <br/>
