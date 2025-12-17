@@ -1,5 +1,13 @@
 # Ahead of Time Fetch Demo for SPAs
 
+
+## TL;DR - Preload Critical API requests
+
+![](docs/aot-summary.png)
+
+
+## Overview
+
 This repo shows a few ways to speed up the cold start of SPAs.
 
 _Cold start_ meaning either the initial load, or a version update. On subsequent
