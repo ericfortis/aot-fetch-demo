@@ -60,7 +60,8 @@ In this repository we discuss two techniques. Option 1 is
 client-initiated, while Option 2 is similar to a server side include (SSI).
 
 - Option 1 is about indicating which APIs we want to preload. 
-- Option 2 streams a chunk with only the API data, so there’s no rendering overhead.
+- Option 2 streams a chunk with only the API data, so there’s no UI rendering overhead. 
+This is what YouTube does.
 
 
 ## Option 1 - Overview
@@ -249,8 +250,8 @@ function aotFetch(url) {
 
 ## Option 2: Data-only Server Side Includes (SSI)
 
-This technique is similar to SSR, but it avoids the rendering overhead.
-It just streams the API data, commonly as JSON but not limited to it.
+YouTube uses this technique. This technique is similar to SSR, but it avoids the UI
+rendering overhead. It just streams the API data, commonly as JSON but not limited to it.
 
 The demo streams `index.html` document in two parts.
 The document as is, and a second chunk with the API response
