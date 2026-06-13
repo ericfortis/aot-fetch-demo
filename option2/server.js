@@ -9,11 +9,11 @@ import { Mockaton } from 'mockaton'
 import mockatonConfig from '../mockaton.config.js'
 
 
-const colorsMicroservice = await Mockaton({
-	...mockatonConfig,
-	onReady: () => {} // noop, so it doesn’t open Mockaton’s dashboard
-})
-const microservice = `http://localhost:${colorsMicroservice.address().port}`
+const rel = f => join(import.meta.dirname, f)
+
+console.log('Starting mock API server…')
+const mockServer = await Mockaton(mockatonConfig)
+const backendAddr = `http://localhost:${mockServer.address().port}`
 
 
 createServer(onRequest)
@@ -62,7 +62,7 @@ async function onIndex(response) {
 		error: null
 	}
 	try {
-		const colorsResponse = await fetch(`${microservice}/api/colors`)
+		const colorsResponse = await fetch(`${backendAddr}/api/colors`)
 		payload.status = colorsResponse.status
 		if (colorsResponse.status === 200)
 			payload.data = await colorsResponse.json()

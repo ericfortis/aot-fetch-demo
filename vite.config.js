@@ -3,16 +3,18 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import mockatonPlugin from 'mockaton/vite'
+import mockatonConfig from './mockaton.config.js'
 
 
 function readAotFetch() {
 	return readFileSync(join(import.meta.dirname, './index-aot-fetch.js'), 'utf8').trim()
 }
 
-
 export default defineConfig({
 	plugins: [
 		react(),
+		mockatonPlugin(mockatonConfig),
 		injectInlineAotScriptPlugin(),
 		cspNginxPlugin()
 	],
@@ -22,7 +24,7 @@ export default defineConfig({
 		host: true,
 		proxy: {
 			'/api': {
-				target: 'http://localhost:2345',
+				target: `http://localhost:${mockatonConfig.port}`,
 				changeOrigin: true
 			}
 		}
@@ -48,8 +50,8 @@ function injectInlineAotScriptPlugin() {
 /**
  * If you use a Content-Security-Policy, here’s an example for signing
  * the inline script.
- * 
- * This Vite plugin writes a file (csp.nginx), which is meant to be 
+ *
+ * This Vite plugin writes a file (csp.nginx), which is meant to be
  * included in your nginx.conf. For example,
  * ```nginx
  * server {

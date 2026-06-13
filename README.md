@@ -19,7 +19,7 @@ _Cold start_ meaning either the initial load, or a version update. On subsequent
 ### Long-term caching
 For long-term caching, the quick win is versioning static
 filenames (e.g., `script-<hash>.js`) and serving them with a
-cache header with an `immutable` flag, which avoids revalidation:
+cache header with an `immutable` flag, which avoids revalidation.
 
 ```
 Cache-Control: public,max-age=31536000,immutable
@@ -60,8 +60,8 @@ In this repository we discuss two techniques. Option 1 is
 client-initiated, while Option 2 is similar to a server side include (SSI).
 
 - Option 1 is about indicating which APIs we want to preload. 
-- Option 2 streams a chunk with only the API data, so there’s no UI rendering overhead. 
-This is what YouTube does.
+- Option 2 streams a chunk with only the API data, so there’s no 
+  UI rendering overhead. This is similar to what YouTube does.
 
 
 ## Option 1 - Overview
@@ -71,11 +71,11 @@ and fourth one for preloading with `fetch()`. Their performance difference
 is negligible &mdash; they all start right after downloading the HTML
 document. On the other hand, Option 2 has a potential, but slight, advantage
 because it can initiate the API call before the HTML is sent. At any rate,
-it’s pretty negligible because these HTML files are like 1.5 kB. Also, because
-the requests reuse the TCP connection, so there’s no handshake overhead.
+it’s pretty negligible too because these HTML files are like 1.5 kB. Also, because
+requests can reuse the TCP connection, so there’s no handshake overhead.
 
 
-#### Without Ahead-of-Time (AOT)
+#### Without Ahead-of-Time (AOT) fetching
 In this screenshot, we do not use an AOT fetch technique, so you
 can see that `GET /api/colors` starts only after the SPA is ready.
 
@@ -85,8 +85,8 @@ can see that `GET /api/colors` starts only after the SPA is ready.
 <br/>
 
 #### With AOT
-On the other hand, here’s what AOT fetch looks like. Note
-the `index.html` and the API request download concurrently.
+Here’s what the AOT chain looks like. Note that `index.html` and 
+the API request download concurrently.
 
 ![](./docs/aot.png)
 
@@ -104,7 +104,6 @@ add_header Link '</api/colors>; rel=preload; as=fetch; crossorigin=use-credentia
 ### Option 1-B: Add a &lt;link> to your `index.html`
 Add a link tag:
 ```html
-
 <head>
   <link rel="preload" href="/api/colors" as="fetch" crossorigin="use-credentials">
   …
@@ -119,7 +118,7 @@ prefetch APIs based on a value in the user’s `localStorage`.
 ```html
 <html>
 <head>
-  <script type="module" src="script-123 does not block because is type module.js"></script>
+  <script type="module" src="script-x12a3 does not block because is type module.js"></script>
   
   <script>
     preload('/api/colors')
@@ -134,7 +133,7 @@ prefetch APIs based on a value in the user’s `localStorage`.
     }
   </script>
 
-  <link rel="stylesheet" href="style-123 blocks so it goes after preloading.css" />
+  <link rel="stylesheet" href="style-y12z3 blocks so it goes after preloading.css" />
 </head>
 <body>
 </body>
@@ -149,18 +148,8 @@ cd aot-fetch-demo
 npm install 
 
 npm run backend
-npm run dev # in another terminal 
+npm run demo # in another tab
 ```
-
-The screenshots above are from a built SPA because the
-[performance-tab](https://developer.chrome.com/docs/devtools/performance) graphs
-are cleaner that way. If you prefer this approach, you can run this instead:
-```sh
-npm run build
-npm run backend
-```
-
-Then, open http://localhost:2345
 
 
 #### Setup (Vite)
@@ -212,7 +201,7 @@ it could be useful if you need to include custom headers. For example:
 ```html
 <html>
 <head>
-  <script type="module" src="script-123-does-not-block-because-is-module.js"></script>
+  <script type="module" src="other-script-x19n3.js"></script>
   <script>
     window._aotFetch = { 
       '/api/colors': fetch('/api/colors', /* custom headers */) 
@@ -250,16 +239,32 @@ function aotFetch(url) {
 
 ## Option 2: Data-only Server Side Includes (SSI)
 
-YouTube uses this technique. This technique is similar to SSR, but it avoids the UI
-rendering overhead. It just streams the API data, commonly as JSON but not limited to it.
+YouTube uses this technique. It’s similar to SSR, but avoids the UI
+rendering overhead on the server-side. It can be done blocking or streaming. 
 
-The demo streams `index.html` document in two parts.
-The document as is, and a second chunk with the API response
-in a script tag. Then, on the client ([option2/spa.js](option2/spa.js)), we
+### Option 2-A: Blocking
+This is a bit simpler than 2-B, it injects the initial data in a 
+global variable in the html document.
+
+```html
+<script nonce="some-nonce-2pW">
+  var ytInitialData = {…}
+</script>
+```
+
+### Option 2-B: Streaming
+In this case we’ll stream a second chunk with the initial API data,
+commonly as JSON but not limited to it. The first chunk is normal html 
+document, and the second chunk has the data in a script tag.
+
+For that, on the client ([option2/spa.js](option2/spa.js)) we
 subscribe to an event that is triggered when the data is loaded.
+On the server ([option2/server.js](option2/server.js)), when the data is ready,
+we inject two script tags. One with the JSON data, and another one that
+emits the event the client is already listening to.
 
-See the [option2/](./option2) directory, you can run the demo with:
-
+See the [option2/](./option2) directory, 
+You can run the demo with:
 ```sh
 cd option2
 ./server.js
