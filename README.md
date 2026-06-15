@@ -85,7 +85,7 @@ can see that `GET /api/colors` starts only after the SPA is ready.
 <br/>
 
 #### With AOT
-Here’s what the AOT chain looks like. Note that `index.html` and 
+Here’s what the AOT chain looks like. Note that `index.js` and 
 the API request download concurrently.
 
 ![](./docs/aot.png)
