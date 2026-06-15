@@ -17,7 +17,7 @@
 		const data = aotElem().textContent.trim()
 
 		const pre = document.createElement('pre')
-		pre.innerText = 'Rendering colors payload from spa.js:\n' + data
+		pre.innerText = 'Chunk 2: API Payload:\n' + data
 		document.body.appendChild(pre)
 	}
 }())

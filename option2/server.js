@@ -2,7 +2,7 @@
 
 import { join } from 'node:path'
 import { createServer } from 'node:http'
-import { readFileSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
 
 import { Mockaton } from 'mockaton'
@@ -13,21 +13,20 @@ const rel = f => join(import.meta.dirname, f)
 
 console.log('Starting mock API server…')
 const mockServer = await Mockaton(mockatonConfig)
-const backendAddr = `http://localhost:${mockServer.address().port}`
+const apiAddr = `http://localhost:${mockServer.address().port}`
 
 
-createServer(onRequest)
-	.listen(8080, () => {
-		console.log('\nDEMO APP: http://localhost:8080')
-	})
+createServer(onRequest).listen(function () {
+	console.log(`\nDEMO: http://localhost:${this.address().port}`)
+})
 
 
-function onRequest(req, response) {
+async function onRequest(req, response) {
 	if (req.url === '/')
-		onIndex(response)
+		await onIndex(response)
 
 	else if (req.url === '/spa.js')
-		response.end(readFileSync(join(import.meta.dirname, 'spa.js')))
+		response.end(await readFile(rel(req.url)))
 
 	else {
 		response.statusCode = 404
@@ -38,19 +37,17 @@ function onRequest(req, response) {
 
 async function onIndex(response) {
 	const nonce = randomBytes(16).toString('base64Url')
-	
-	response.writeHead(200, { 
+
+	// Chunk 1
+	response.writeHead(200, {
 		'Content-Type': 'text/html; charset=utf-8',
-		'Content-Security-Policy': `default-src 'self'; script-src 'nonce-${nonce}' 'self'` 
+		'Content-Security-Policy': `default-src 'self'; script-src 'nonce-${nonce}' 'self'`
 	})
 	response.write(`<!DOCTYPE html>
 <html>
-<head>
-  <title>Streaming SSI Demo</title>
-</head>
 <body>
   <h1>Streaming Server-Side Include (SSI) Demo</h1>
-  <p>Streamed Chunk 1 END</p>
+  <p>Chunk 1 END</p>
   <hr/>
   <script src="spa.js"></script>
 `)
@@ -58,14 +55,14 @@ async function onIndex(response) {
 	// Chunk 2
 	const payload = {
 		status: -1,
-		data: null,
-		error: null
+		error: null,
+		data: null
 	}
 	try {
-		const colorsResponse = await fetch(`${backendAddr}/api/colors`)
-		payload.status = colorsResponse.status
-		if (colorsResponse.status === 200)
-			payload.data = await colorsResponse.json()
+		const apiResponse = await fetch(`${apiAddr}/api/colors`)
+		payload.status = apiResponse.status
+		if (apiResponse.ok)
+			payload.data = await apiResponse.json()
 	}
 	catch (error) {
 		payload.error = error?.message
