@@ -27,7 +27,7 @@ Cache-Control: public,max-age=31536000,immutable
 
 ### Pre-compression
 
-Another win is precompressing static assets. That way, you
+Another win is precompressing static assets, so you
 can use the highest compression profile, which is discouraged
 when compressing on-the-fly. For example, for brotli compression:
 
@@ -64,20 +64,19 @@ client-initiated, while Option 2 is similar to a server side include (SSI).
   UI rendering overhead. This is similar to what YouTube does.
 
 
-## Option 1 - Overview
+## Option 1 - Preloading
 We’ll discuss four alternatives for this option. Three for preloading APIs with
 [Links](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link),
 and fourth one for preloading with `fetch()`. Their performance difference
 is negligible &mdash; they all start right after downloading the HTML
 document. On the other hand, Option 2 has a potential, but slight, advantage
 because it can initiate the API call before the HTML is sent. At any rate,
-it’s pretty negligible too because these HTML files are like 1.5 kB. Also, because
-requests can reuse the TCP connection, so there’s no handshake overhead.
+it’s pretty negligible too because these HTML files are like 1.5 kB.
 
 
 #### Without Ahead-of-Time (AOT) fetching
 In this screenshot, we do not use an AOT fetch technique, so you
-can see that `GET /api/colors` starts only after the SPA is ready.
+can see that `GET /api/colors` starts after the SPA is ready.
 
 ![](./docs/no-aot.png)
 
@@ -153,7 +152,7 @@ npm run demo # in another tab
 
 
 #### Setup (Vite)
-The [vite.config.js](./vite.config.js) of this repo has an `htmlPlugin` function
+The [vite.config.js](./vite.config.js) in this repo has an `htmlPlugin` function
 that injects [index-aot-fetch.js](./index-aot-fetch.js) into [index.html](./index.html).
 
 
@@ -237,14 +236,15 @@ function aotFetch(url) {
 <hr/>   
 <br/>
 
-## Option 2: Data-only Server Side Includes (SSI)
+## Option 2: Data-Only Server-Side Includes (SSI)
 
-YouTube uses this technique. It’s similar to SSR, but avoids the UI
-rendering overhead on the server-side. It can be done blocking or streaming. 
+YouTube uses this technique. It’s similar to SSR, but it avoids the UI 
+rendering overhead on the server side. It can be implemented in either a blocking or a streaming manner.
 
 ### Option 2-A: Blocking
-This is a bit simpler than 2-B, it injects the initial data in a 
-global variable in the html document.
+
+This approach is a bit simpler than 2-B. It injects the initial data into
+a global variable in the HTML document.
 
 ```html
 <script nonce="some-nonce-2pW">
@@ -253,18 +253,21 @@ global variable in the html document.
 ```
 
 ### Option 2-B: Streaming
-In this case we’ll stream a second chunk with the initial API data,
-commonly as JSON but not limited to it. The first chunk is normal html 
-document, and the second chunk has the data in a script tag.
 
-For that, on the client ([option2/spa.js](option2/spa.js)) we
-subscribe to an event that is triggered when the data is loaded.
-On the server ([option2/server.js](option2/server.js)), when the data is ready,
-we inject two script tags. One with the JSON data, and another one that
-emits the event the client is already listening to.
+In this case, we stream a second chunk containing the initial API data, 
+commonly as JSON, though it is not limited to that format. The first chunk 
+is a normal HTML document, and the second chunk contains the data in a script tag.
 
-See the [option2/](./option2) directory, 
+On the client ([option2/spa.js](option2/spa.js)), we subscribe to an event that 
+is triggered when the data is loaded. On the server ([option2/server.js](option2/server.js)), 
+once the data is ready, we inject two script tags: one containing the JSON data 
+and another that emits the event the client is already listening for.
+
+See the [option2/](./option2) directory.
+
 You can run the demo with:
+
+
 ```sh
 cd option2
 ./server.js
