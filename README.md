@@ -9,7 +9,6 @@
 ## Overview
 
 This repo shows a few ways to speed up the cold start of SPAs.
-
 _Cold start_ meaning either the initial load, or a version update. On subsequent
 (warm) loads this technique is not needed because static assets can be fully cached.
 
@@ -47,6 +46,13 @@ location /assets {
 ```
 </details>
 
+We’ll discuss two techniques. Option 1 is
+client-initiated, while Option 2 is similar to a server side include (SSI).
+
+- Option 1 is about indicating which APIs we want to preload.
+- Option 2 streams a chunk with only the API data, so there’s no
+  UI rendering overhead. This is similar to what YouTube does.
+
 
 
 ## Background
@@ -54,14 +60,7 @@ location /assets {
 Most Single Page Applications (SPAs) initiate all backend requests from a static
 JavaScript file. In those cases, that static file needs to be downloaded before initiating
 API requests. **But that chain doesn’t have to be sequential**. We can concurrently
-request dynamic APIs and static assets APIs without server side rendering (SSR).
-
-In this repository we discuss two techniques. Option 1 is
-client-initiated, while Option 2 is similar to a server side include (SSI).
-
-- Option 1 is about indicating which APIs we want to preload. 
-- Option 2 streams a chunk with only the API data, so there’s no 
-  UI rendering overhead. This is similar to what YouTube does.
+request dynamic APIs and static assets without server side rendering (SSR).
 
 
 ## Option 1 - Preloading
