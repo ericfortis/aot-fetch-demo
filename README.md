@@ -142,17 +142,16 @@ prefetch APIs based on a value in the user’s `localStorage`.
 
 ```shell
 git clone https://github.com/ericfortis/aot-fetch-demo.git
-cd aot-fetch-demo
+cd aot-fetch-demo/option1
 npm install 
-
 npm run backend
 npm run demo # in another tab
 ```
 
 
 #### Setup (Vite)
-The [vite.config.js](./vite.config.js) in this repo has an `htmlPlugin` function
-that injects [index-aot-fetch.js](./index-aot-fetch.js) into [index.html](./index.html).
+The [vite.config.js](./option1/vite.config.js) in this repo has an `htmlPlugin` function
+that injects [index-aot-fetch.js](./option1/index-aot-fetch.js) into [index.html](./option1/index.html).
 
 
 #### Setup (Webpack)
@@ -238,7 +237,7 @@ function aotFetch(url) {
 ## Option 2: Data-Only Server-Side Includes (SSI)
 
 YouTube uses this technique. It’s similar to SSR, but it avoids the UI 
-rendering overhead on the server side. It can be implemented in either a blocking or a streaming manner.
+rendering overhead on the server side. It can be implemented blocking or streaming.
 
 ### Option 2-A: Blocking
 
@@ -250,6 +249,8 @@ a global variable in the HTML document.
   var ytInitialData = {…}
 </script>
 ```
+Besides being simpler, it also allows for compression.
+
 
 ### Option 2-B: Streaming
 
@@ -262,14 +263,13 @@ is triggered when the data is loaded. On the server ([option2/server.js](option2
 once the data is ready, we inject two script tags: one containing the JSON data 
 and another that emits the event the client is already listening for.
 
-See the [option2/](./option2) directory.
-
 You can run the demo with:
 
-
 ```sh
-cd option2
-./server.js
+git clone https://github.com/ericfortis/aot-fetch-demo.git
+cd aot-fetch-demo/option2
+npm install
+npm start
 ```
 
 ![](docs/streamed-ssi.png)

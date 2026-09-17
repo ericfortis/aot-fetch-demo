@@ -4,15 +4,14 @@ import { join } from 'node:path'
 import { createServer } from 'node:http'
 import { readFile } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
-
 import { Mockaton } from 'mockaton'
-import mockatonConfig from '../mockaton.config.js'
 
 
 const rel = f => join(import.meta.dirname, f)
 
+
 console.log('Starting mock API server…')
-const mockServer = await Mockaton(mockatonConfig)
+const mockServer = await Mockaton({ mocksDir: rel('../mocks') })
 const apiAddr = `http://localhost:${mockServer.address().port}`
 
 
